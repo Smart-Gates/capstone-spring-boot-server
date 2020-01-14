@@ -1,14 +1,19 @@
 package smartgate.capstonespringboot.models;
 
-import java.util.List;
+import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-public class WeatherForecastResponse {
+// including the @JsonIgnoreProperties the JSON can be mapped to the Objects
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class WeatherForecastResponse implements Serializable {
 
+	private static final long serialVersionUID = -6795599522573345184L;
+	
 	private long latitude;
 	private long longitude;
 	private String timezone;
-	private WeatherCurrent weatherCurrent;
-	private List<WeatherDaily> weatherDaily;
+	private WeatherCurrently currently;
+	private WeatherDaily daily;
 	
 	public long getLatitude() {
 		return latitude;
@@ -28,16 +33,16 @@ public class WeatherForecastResponse {
 	public void setTimezone(String timezone) {
 		this.timezone = timezone;
 	}
-	public WeatherCurrent getWeatherCurrent() {
-		return weatherCurrent;
+	public WeatherCurrently getCurrently() {
+		return currently;
 	}
-	public void setWeatherCurrent(WeatherCurrent weatherCurrent) {
-		this.weatherCurrent = weatherCurrent;
+	public void setCurrently(WeatherCurrently currently) {
+		this.currently = currently;
 	}
-	public List<WeatherDaily> getWeatherDaily() {
-		return weatherDaily;
+	public WeatherDaily getDaily() {
+		return daily;
 	}
-	public void setWeatherDaily(List<WeatherDaily> weatherDaily) {
-		this.weatherDaily = weatherDaily;
+	public void setDaily(WeatherDaily daily) {
+		this.daily = daily;
 	}
 }

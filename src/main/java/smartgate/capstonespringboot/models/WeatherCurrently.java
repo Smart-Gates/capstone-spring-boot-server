@@ -1,6 +1,12 @@
 package smartgate.capstonespringboot.models;
 
-class WeatherCurrent {
+import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+class WeatherCurrently implements Serializable  {
+	
+	private static final long serialVersionUID = -4679464554129396884L;
 	
 	private int time;
 	private String summary;
