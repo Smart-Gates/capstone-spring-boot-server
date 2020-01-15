@@ -27,7 +27,7 @@ public class WeatherController {
 	
 	// returns the nested JSON as the WeatherForecastResponse object, this is to remove unneeded values
 	@GetMapping("/api/weather/{latitude}/{longitude}") 
-	WeatherForecastResponse getWeatherApi(@PathVariable long latitude, @PathVariable long longitude) {
+	WeatherForecastResponse getWeatherApi(@PathVariable String latitude, @PathVariable String longitude) {
 		String url = this.weatherUrl + this.weatherSecret +"/"+latitude+","+longitude+"?exclude=minutely,hourly";
 		return this.restTemplate.getForObject(url, WeatherForecastResponse.class);
 	}

@@ -21,12 +21,19 @@ public class Meeting {
   private long timeEndUnix;
   Meeting() {}
 
-  public Meeting(String title, String description, Status status, long timeStartUnix, long timeEndUnix) {
+  public Meeting(String title, String description, long timeStartUnix, long timeEndUnix) {
 	this.title = title;
     this.description = description;
-    this.status = status;
     this.timeStartUnix = timeStartUnix;
     this.timeEndUnix = timeEndUnix;
 
+  }
+  
+  public void setStatus(Status status) {
+	  this.status = status;
+  }
+  
+  public Status getStatus() {
+	  return this.status;
   }
 }

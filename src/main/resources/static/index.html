@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -53,11 +53,14 @@
             .m-b-md {
                 margin-bottom: 30px;
             }
-        </style>
+        </style>  
+       
     </head>
     <body>
         <div class="flex-center position-ref full-height">
-         
+        	<div class="top-right links">
+				<a href="login">Login</a>
+			</div>
 
             <div class="content">
                 <div class="title m-b-md">

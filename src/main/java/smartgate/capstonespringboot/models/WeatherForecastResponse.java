@@ -9,22 +9,22 @@ public class WeatherForecastResponse implements Serializable {
 
 	private static final long serialVersionUID = -6795599522573345184L;
 	
-	private long latitude;
-	private long longitude;
+	private String latitude;
+	private String longitude;
 	private String timezone;
 	private WeatherCurrently currently;
 	private WeatherDaily daily;
 	
-	public long getLatitude() {
+	public String getLatitude() {
 		return latitude;
 	}
-	public void setLatitude(long latitude) {
+	public void setLatitude(String latitude) {
 		this.latitude = latitude;
 	}
-	public long getLongitude() {
+	public String getLongitude() {
 		return longitude;
 	}
-	public void setLongitude(long longitude) {
+	public void setLongitude(String longitude) {
 		this.longitude = longitude;
 	}
 	public String getTimezone() {
