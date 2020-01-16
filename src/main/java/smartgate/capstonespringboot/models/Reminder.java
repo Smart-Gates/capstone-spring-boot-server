@@ -3,26 +3,28 @@ package smartgate.capstonespringboot.models;
 import lombok.Data;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
 @Data
-@Table(name = "USER_MEETING")
+@Table(name = "reminders")
 public class Reminder {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-  private @Id @GeneratedValue Long id;
+	private String title;
+	private String description;
+	private Long meeting_id;
 
-  private String title;
-  private String description;
-  private long reminderTimes; 
-  private long condition; 
-  Reminder() {}
+	Reminder() {
+	}
 
-  public Reminder(String title, String description, Status status, long timeStartUnix, long timeEndUnix) {
-	this.title = title;
-    this.description = description;
-  
-
-  }
+	public Reminder(String title, String description, long meeting_id) {
+		this.title = title;
+		this.description = description;
+		this.meeting_id = meeting_id;
+	}
 }
