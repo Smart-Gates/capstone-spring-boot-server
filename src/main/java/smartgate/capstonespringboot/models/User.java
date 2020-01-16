@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinTable;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Email;
@@ -57,6 +58,10 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
    
 	private Set<Role> roles = new HashSet<>();
+	
+	
+	 @OneToOne(mappedBy = "organization")
+	    private User user;
 
     public User() {
 

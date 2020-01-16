@@ -12,7 +12,7 @@ import java.sql.Timestamp;
 // @Data removes getter and setter boilerplate
 @Entity
 @Data
-@Table(name = "meetings")
+@Table(name = "meeting")
 public class Meeting {
 	
 	@Id

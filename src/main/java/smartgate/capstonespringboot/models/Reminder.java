@@ -7,16 +7,21 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import javax.validation.constraints.NotBlank;
+
 @Entity
 @Data
-@Table(name = "reminders")
+@Table(name = "reminder")
 public class Reminder {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	@NotBlank
 	private String title;
 	private String description;
+	
+	
 	private Long meeting_id;
 
 	Reminder() {
