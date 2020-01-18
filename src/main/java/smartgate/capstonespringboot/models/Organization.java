@@ -1,15 +1,16 @@
 package smartgate.capstonespringboot.models;
 
 import lombok.Data;
-
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
+
+import org.hibernate.annotations.NaturalId;
 
 @Entity
 @Data
@@ -18,14 +19,14 @@ public class Organization {
 
 	private @Id @GeneratedValue Long id;
 
+	@NaturalId
 	@NotBlank
 	private String name;
-	
-	@NotBlank
-	@OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "head_id", referencedColumnName = "id")
-	private User user;
-	
+
+	@OneToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "acct_mngr_id", nullable = false)
+	private User acct_mngr;
+
 	@NotBlank
 	private String street_address;
 	@NotBlank
@@ -40,10 +41,10 @@ public class Organization {
 	Organization() {
 	}
 
-	public Organization(String name, User user, String street_address, String zip, 
-			String city, String province_state, String country) {
+	public Organization(String name, User user, String street_address, String zip, String city, String province_state,
+			String country) {
 		this.name = name;
-		this.user = user;
+		this.acct_mngr = user;
 		this.street_address = street_address;
 		this.zip = zip;
 		this.city = city;

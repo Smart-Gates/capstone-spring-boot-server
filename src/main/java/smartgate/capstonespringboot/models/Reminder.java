@@ -1,6 +1,9 @@
 package smartgate.capstonespringboot.models;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import smartgate.capstonespringboot.models.audit.DateAudit;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -12,7 +15,8 @@ import javax.validation.constraints.NotBlank;
 @Entity
 @Data
 @Table(name = "reminder")
-public class Reminder {
+
+public class Reminder  {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -20,8 +24,7 @@ public class Reminder {
 	@NotBlank
 	private String title;
 	private String description;
-	
-	
+
 	private Long meeting_id;
 
 	Reminder() {
