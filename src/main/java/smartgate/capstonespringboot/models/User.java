@@ -32,7 +32,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "users", uniqueConstraints = { @UniqueConstraint(columnNames = { "email" }) })
-@JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -60,13 +60,11 @@ public class User {
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
 
-	@JsonIgnore
 	private Set<Role> roles = new HashSet<>();
 
-	//@JsonManagedReference
 	@JsonIgnore
 	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "acct_mngr")
-	private Organization organization;
+	private Organization acctManager;
 
 	// OnDeleteAction will delete all the users with the associated organization if
 	// the organization is deleted
@@ -75,7 +73,7 @@ public class User {
 	@JoinColumn(name = "organization_id", nullable = true)
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	@JsonIgnore
-	private Organization organizationid;
+	private Organization organization;
 
 	public User() {
 

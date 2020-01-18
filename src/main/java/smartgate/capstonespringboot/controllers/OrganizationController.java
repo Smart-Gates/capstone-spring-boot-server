@@ -31,8 +31,6 @@ import org.springframework.http.ResponseEntity;
 @RestController
 public class OrganizationController {
 
-	// private final MeetingRepository meetingRepository;
-	// private final MeetingResourceAssembler assembler;
 	private final OrganizationResourceAssembler assembler;
 
 	private final OrganizationRepository organizationRepository;
@@ -85,6 +83,5 @@ public class OrganizationController {
 		return assembler
 				.toModel(organizationRepository.findById(id).orElseThrow(() -> new MeetingNotFoundException(id)));
 	}
-
 
 }
