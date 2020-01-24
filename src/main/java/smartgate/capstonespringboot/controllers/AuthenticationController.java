@@ -12,6 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +29,7 @@ import smartgate.capstonespringboot.payloads.SignUpRequest;
 import smartgate.capstonespringboot.payloads.UserAuthResponse;
 import smartgate.capstonespringboot.repository.RoleRepository;
 import smartgate.capstonespringboot.repository.UserRepository;
+import smartgate.capstonespringboot.security.CurrentUser;
 import smartgate.capstonespringboot.security.JwtTokenProvider;
 import smartgate.capstonespringboot.security.UserPrincipal;
 
@@ -63,6 +65,14 @@ public class AuthenticationController {
 		UserAuthResponse user = new UserAuthResponse((UserPrincipal) authentication.getPrincipal());
 		
 		return ResponseEntity.ok(new JwtAuthenticationResponse(jwt, user));
+	}
+	
+	@GetMapping("/user")
+	public ResponseEntity<?> getUser(@CurrentUser UserPrincipal currentUser) {
+
+		UserAuthResponse user = new UserAuthResponse(currentUser);
+		
+		return ResponseEntity.ok(user);
 	}
 
 	@PostMapping("/signup")
