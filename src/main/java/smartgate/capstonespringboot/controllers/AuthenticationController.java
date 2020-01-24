@@ -25,9 +25,11 @@ import smartgate.capstonespringboot.models.User;
 import smartgate.capstonespringboot.payloads.JwtAuthenticationResponse;
 import smartgate.capstonespringboot.payloads.LoginRequest;
 import smartgate.capstonespringboot.payloads.SignUpRequest;
+import smartgate.capstonespringboot.payloads.UserAuthResponse;
 import smartgate.capstonespringboot.repository.RoleRepository;
 import smartgate.capstonespringboot.repository.UserRepository;
 import smartgate.capstonespringboot.security.JwtTokenProvider;
+import smartgate.capstonespringboot.security.UserPrincipal;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -57,7 +59,10 @@ public class AuthenticationController {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
 		String jwt = tokenProvider.generateToken(authentication);
-		return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
+		
+		UserAuthResponse user = new UserAuthResponse((UserPrincipal) authentication.getPrincipal());
+		
+		return ResponseEntity.ok(new JwtAuthenticationResponse(jwt, user));
 	}
 
 	@PostMapping("/signup")
@@ -95,6 +100,8 @@ public class AuthenticationController {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
 		String jwt = tokenProvider.generateToken(authentication);
-		return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
+		UserAuthResponse user = new UserAuthResponse((UserPrincipal) authentication.getPrincipal());
+		
+		return ResponseEntity.ok(new JwtAuthenticationResponse(jwt, user));
 	}
 }
