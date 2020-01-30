@@ -7,6 +7,8 @@ target/classes/
 application.properties
 **/application.properties
 target/classes/application.properties
+**/application.properties
+**/src/main/resources/google
 
 ### STS ###
 .apt_generated

@@ -7,7 +7,6 @@ import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
 
 import smartgate.capstonespringboot.models.*;
-import smartgate.capstonespringboot.controllers.MeetingController;
 import smartgate.capstonespringboot.controllers.OrganizationController;
 @Component
 public class OrganizationResourceAssembler implements RepresentationModelAssembler <Organization, EntityModel<Organization>> {
