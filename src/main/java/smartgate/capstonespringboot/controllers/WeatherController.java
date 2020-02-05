@@ -17,18 +17,11 @@ public class WeatherController {
 	private String weatherSecret;
 	// restTemplate is self explanatory, used for outgoing RESTAPI requests
 	private final RestTemplate restTemplate = new RestTemplate();
-
-	// remove duplicate getMapping once mobile app is updated
-	@GetMapping("/weather/{latitude}/{longitude}") 
-	WeatherForecastResponse getWeather(@PathVariable long latitude, @PathVariable long longitude) {
-		String url = this.weatherUrl + this.weatherSecret +"/"+latitude+","+longitude+"?exclude=minutely,hourly";
-		return this.restTemplate.getForObject(url, WeatherForecastResponse.class);
-	}
 	
 	// returns the nested JSON as the WeatherForecastResponse object, this is to remove unneeded values
 	@GetMapping("/api/weather/{latitude}/{longitude}") 
 	WeatherForecastResponse getWeatherApi(@PathVariable String latitude, @PathVariable String longitude) {
-		String url = this.weatherUrl + this.weatherSecret +"/"+latitude+","+longitude+"?exclude=minutely,hourly,alerts,flags";
+		String url = this.weatherUrl + this.weatherSecret +"/"+latitude+","+longitude+"?exclude=minutely,hourly,alerts,flags&units=si";
 		return this.restTemplate.getForObject(url, WeatherForecastResponse.class);
 	}
 }

@@ -20,7 +20,7 @@ import smartgate.capstonespringboot.repository.UserRepository;
 import smartgate.capstonespringboot.security.CurrentUser;
 import smartgate.capstonespringboot.security.UserPrincipal;
 import smartgate.capstonespringboot.assembler.OrganizationResourceAssembler;
-import smartgate.capstonespringboot.exception.MeetingNotFoundException;
+import smartgate.capstonespringboot.exception.OrganizationNotFoundException;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 import org.springframework.hateoas.EntityModel;
@@ -45,19 +45,26 @@ public class OrganizationController {
 		this.assembler = assembler;
 	}
 
-	@GetMapping("/uid")
-	public Long getUserID(@CurrentUser UserPrincipal currentUser) {
+	@GetMapping("/organizations/list")
+	public CollectionModel<EntityModel<Organization>> all() { // ADMIN use
 
-		return currentUser.getId();
-	}
-
-	@GetMapping("/organizations")
-	public CollectionModel<EntityModel<Organization>> all() {
-
+		//return only organizations that the user belongs to
+		
 		List<EntityModel<Organization>> organizations = organizationRepository.findAll().stream()
 				.map(assembler::toModel).collect(Collectors.toList());
 
 		return new CollectionModel<>(organizations, linkTo(methodOn(OrganizationController.class).all()).withSelfRel());
+	}
+	
+	@GetMapping("/organizations")
+	public EntityModel<?> getUserOrganizations(@CurrentUser UserPrincipal currentUser) {
+		User user = userRepository.findById(currentUser.getId()).get();
+
+		Long id = user.getOrganization().getId();
+		//return only organizations that the user belongs to
+		return assembler
+				.toModel(organizationRepository.findById(id).orElseThrow(() -> new OrganizationNotFoundException()));
+	
 	}
 
 	@PostMapping("/organizations")
@@ -73,6 +80,9 @@ public class OrganizationController {
 				organizationReq.getCountry());
 
 		organizationRepository.save(newOrg);
+		// updates user org
+		user.setOrganization(newOrg);
+		userRepository.save(user);
 
 		return ResponseEntity.created(linkTo(methodOn(OrganizationController.class).one(newOrg.getId())).toUri())
 				.body(assembler.toModel(newOrg));
@@ -81,7 +91,13 @@ public class OrganizationController {
 	@GetMapping("/organizations/{id}")
 	public EntityModel<Organization> one(@PathVariable Long id) {
 		return assembler
-				.toModel(organizationRepository.findById(id).orElseThrow(() -> new MeetingNotFoundException(id)));
+				.toModel(organizationRepository.findById(id).orElseThrow(() -> new OrganizationNotFoundException(id)));
+	}
+	
+	@GetMapping("/organizations/{organization_name}")
+	public EntityModel<Organization> getByName(@PathVariable String name) {
+		return assembler
+				.toModel(organizationRepository.findByName(name).orElseThrow(() -> new OrganizationNotFoundException(name)));
 	}
 
 }

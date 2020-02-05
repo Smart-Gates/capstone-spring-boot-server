@@ -69,7 +69,7 @@ public class User {
 	// OnDeleteAction will delete all the users with the associated organization if
 	// the organization is deleted
 	@Nullable
-	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "organization_id", nullable = true)
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	@JsonIgnore

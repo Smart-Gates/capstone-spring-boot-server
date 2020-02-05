@@ -12,6 +12,8 @@ import javax.validation.constraints.NotBlank;
 
 import org.hibernate.annotations.NaturalId;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) 
 @Entity
 @Data
 @Table(name = "organization")

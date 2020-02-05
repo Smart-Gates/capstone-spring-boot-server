@@ -4,9 +4,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.transaction.Transactional;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.ResponseEntity;
 
+@Transactional
 @RequestMapping("/api")
 @RestController
 public class ReminderController {
@@ -50,8 +55,6 @@ public class ReminderController {
 		// reminders where user is creator
 		List<EntityModel<Reminder>> reminders = reminderRepository.findAllByCreator(user).stream()
 				.map(assembler::toModel).collect(Collectors.toList());
-
-	
 
 		return new CollectionModel<>(reminders,
 				linkTo(methodOn(ReminderController.class).all(currentUser)).withSelfRel());
@@ -86,6 +89,35 @@ public class ReminderController {
 		return ResponseEntity.created(linkTo(methodOn(ReminderController.class).one(newReminder.getId())).toUri())
 				.body(assembler.toModel(newReminder));
 
+	}
+
+	@PutMapping("/reminders/{id}")
+	public EntityModel<Reminder> updateReminder(@PathVariable Long id, @RequestBody ReminderRequest reminderRequest,
+			@CurrentUser UserPrincipal currentUser) {
+		
+		User user = userRepository.findById(currentUser.getId()).get();
+		
+		reminderRepository.findByIdAndCreator(id, user).map(reminder -> {
+			reminder.setTitle(reminderRequest.getTitle());
+			reminder.setDescription(reminderRequest.getDescription());
+			reminder.setStart_time(reminderRequest.getStart_time());
+			Event event = null;
+			Long event_id = reminderRequest.getEvent_id();
+			if (event_id != null) {
+				event = eventRepository.findById(event_id).get();
+			}
+			reminder.setEvent(event);
+			return reminderRepository.save(reminder);
+		}).orElseThrow(() -> new ReminderNotFoundException(id));
+
+		return assembler.toModel(reminderRepository.findById(id).orElseThrow(() -> new ReminderNotFoundException(id)));
+	}
+
+	@DeleteMapping("/reminders/{id}")
+	public void deleteReminder(@PathVariable Long id, @CurrentUser UserPrincipal currentUser) {
+		User user = userRepository.findById(currentUser.getId()).get();
+
+		reminderRepository.deleteByIdAndCreator(id, user);
 	}
 
 }

@@ -1,12 +1,17 @@
 package smartgate.capstonespringboot.controllers;
 
 import java.util.List;
+
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.transaction.Transactional;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +27,7 @@ import smartgate.capstonespringboot.security.CurrentUser;
 import smartgate.capstonespringboot.security.UserPrincipal;
 import smartgate.capstonespringboot.assembler.EventResourceAssembler;
 import smartgate.capstonespringboot.exception.EventNotFoundException;
+import smartgate.capstonespringboot.exception.ReminderNotFoundException;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 import org.springframework.hateoas.EntityModel;
@@ -29,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.ResponseEntity;
 
+@Transactional
 @RequestMapping("/api")
 @RestController
 public class EventController {
@@ -105,5 +112,43 @@ public class EventController {
 				.body(assembler.toModel(newEvent));
 
 	}
+	
+	@PutMapping("/events/{id}")
+	public EntityModel<Event> updateReminder(@PathVariable Long id, @RequestBody EventRequest eventRequest,
+			@CurrentUser UserPrincipal currentUser) {
+		
+		User user = userRepository.findById(currentUser.getId()).get();
+		
+		eventRepository.findByIdAndCreator(id, user).map(event -> {
+			event.setTitle(eventRequest.getTitle());
+			event.setDescription(eventRequest.getDescription());
+			event.setStart_time(eventRequest.getStart_time());
+			event.setEnd_time(eventRequest.getEnd_time());
+			eventRepository.save(event);
+			
+			eventRequest.getAttendee_id().forEach(user_id -> {
+				Optional<User> dbAttendee = userRepository.findById(user_id);
+				// checks to see if the user principal has a user in the database
+				if (!dbAttendee.isPresent()) {
+					return;
+				}
+				User attendee = dbAttendee.get();
+				EventAttendee eventAttendee = new EventAttendee(attendee, event);
+				eventAttendeeRepository.save(eventAttendee);
+			});
+
+			return eventRepository.save(event);
+		}).orElseThrow(() -> new ReminderNotFoundException(id));
+
+		return assembler.toModel(eventRepository.findById(id).orElseThrow(() -> new EventNotFoundException(id)));
+	}
+
+	@DeleteMapping("/events/{id}")
+	public void deleteReminder(@PathVariable Long id, @CurrentUser UserPrincipal currentUser) {
+		User user = userRepository.findById(currentUser.getId()).get();
+
+		eventRepository.deleteByIdAndCreator(id, user);
+	}
+	
 
 }
