@@ -11,13 +11,20 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 // @Entity maps to table names meetings
 // @Data removes getter and setter boilerplate
@@ -49,6 +56,11 @@ public class Event extends DateAudit {
 	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "event")
 	private Reminder reminder;
 
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(name = "event_attendee", joinColumns = @JoinColumn(name = "event_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+	@JsonManagedReference
+
+	public List<User> attendees = new ArrayList<User>();
 	public Event() {
 	}
 

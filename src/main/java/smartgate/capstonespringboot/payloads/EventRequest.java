@@ -20,5 +20,5 @@ public class EventRequest {
 	@NotBlank
 	private Timestamp end_time;
 
-	private List<Long> attendee_id;
+	private List<String> attendee_email;
 }

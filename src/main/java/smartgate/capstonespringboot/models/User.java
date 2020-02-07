@@ -1,6 +1,7 @@
 package smartgate.capstonespringboot.models;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -25,8 +26,10 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.lang.Nullable;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.Data;
 
 @Data
@@ -74,6 +77,11 @@ public class User {
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	@JsonIgnore
 	private Organization organization;
+	
+	@ManyToMany( mappedBy="attendees")
+	@JsonBackReference
+	private List<Event> events;
+	
 
 	public User() {
 

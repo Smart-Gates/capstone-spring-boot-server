@@ -17,10 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import smartgate.capstonespringboot.models.Event;
-import smartgate.capstonespringboot.models.EventAttendee;
 import smartgate.capstonespringboot.models.User;
 import smartgate.capstonespringboot.payloads.EventRequest;
-import smartgate.capstonespringboot.repository.EventAttendeeRepository;
 import smartgate.capstonespringboot.repository.EventRepository;
 import smartgate.capstonespringboot.repository.UserRepository;
 import smartgate.capstonespringboot.security.CurrentUser;
@@ -44,8 +42,6 @@ public class EventController {
 	@Autowired
 	EventRepository eventRepository;
 	@Autowired
-	EventAttendeeRepository eventAttendeeRepository;
-	@Autowired
 	EventResourceAssembler assembler;
 
 	// return events from the user
@@ -59,7 +55,7 @@ public class EventController {
 				.collect(Collectors.toList());
 
 		// events where user is listed as a attendee
-		List<Event> attendEvents = eventAttendeeRepository.findAllByUserId(currentUser.getId());
+		List<Event> attendEvents = eventRepository.findAllByAttendees(user);
 
 		attendEvents.forEach(event -> {
 			// find all the events by given event id
@@ -89,24 +85,27 @@ public class EventController {
 
 		Event newEvent = new Event(eventRequest.getTitle(), eventRequest.getDescription(), eventRequest.getLocation(),
 				eventRequest.getStart_time(), eventRequest.getEnd_time(), user);
-		eventRepository.save(newEvent);
 
 		// check to see if there are any attached attendees
-		if (eventRequest.getAttendee_id().isEmpty()) {
+		if (eventRequest.getAttendee_email().isEmpty()) {
 			return ResponseEntity.created(linkTo(methodOn(EventController.class).one(newEvent.getId())).toUri())
 					.body(assembler.toModel(newEvent));
 		}
 
-		eventRequest.getAttendee_id().forEach(user_id -> {
-			Optional<User> dbAttendee = userRepository.findById(user_id);
+		eventRequest.getAttendee_email().forEach(email -> {
+			Optional<User> dbAttendee = userRepository.findByEmail(email);
 			// checks to see if the user principal has a user in the database
 			if (!dbAttendee.isPresent()) {
 				return;
 			}
 			User attendee = dbAttendee.get();
-			EventAttendee eventAttendee = new EventAttendee(attendee, newEvent);
-			eventAttendeeRepository.save(eventAttendee);
+		//	EventAttendee eventAttendee = new EventAttendee(attendee, newEvent);
+			//eventAttendeeRepository.save(eventAttendee);
+			
+			newEvent.attendees.add(attendee);
 		});
+		
+		eventRepository.save(newEvent);
 
 		return ResponseEntity.created(linkTo(methodOn(EventController.class).one(newEvent.getId())).toUri())
 				.body(assembler.toModel(newEvent));
@@ -126,15 +125,17 @@ public class EventController {
 			event.setEnd_time(eventRequest.getEnd_time());
 			eventRepository.save(event);
 			
-			eventRequest.getAttendee_id().forEach(user_id -> {
-				Optional<User> dbAttendee = userRepository.findById(user_id);
+			// clear the attendees
+			event.attendees.clear();
+			eventRequest.getAttendee_email().forEach(email -> {
+				Optional<User> dbAttendee = userRepository.findByEmail(email);
 				// checks to see if the user principal has a user in the database
 				if (!dbAttendee.isPresent()) {
 					return;
 				}
 				User attendee = dbAttendee.get();
-				EventAttendee eventAttendee = new EventAttendee(attendee, event);
-				eventAttendeeRepository.save(eventAttendee);
+				event.attendees.add(attendee);
+
 			});
 
 			return eventRepository.save(event);
