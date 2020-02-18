@@ -2,79 +2,58 @@ package smartgate.capstonespringboot.firebase;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import smartgate.capstonespringboot.models.User;
+import smartgate.capstonespringboot.payloads.FCMNotificationRequest;
 import smartgate.capstonespringboot.payloads.FCMPushNotificationRequest;
+import smartgate.capstonespringboot.repository.UserRepository;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 @Service
 public class FCMPushNotificationService {
 
-    @Value("#{${app.notifications.defaults}}")
-    private Map<String, String> defaults;
+	@Autowired
+	UserRepository userRepository;
+	@Value("#{${app.notifications.defaults}}")
+	private Map<String, String> defaults;
 
-    private Logger logger = LoggerFactory.getLogger(FCMPushNotificationService.class);
-    private FCMService fcmService;
+	private Logger logger = LoggerFactory.getLogger(FCMPushNotificationService.class);
+	private FCMService fcmService;
 
-    public FCMPushNotificationService(FCMService fcmService) {
-        this.fcmService = fcmService;
-    }
+	public FCMPushNotificationService(FCMService fcmService) {
+		this.fcmService = fcmService;
+	}
 
-    @Scheduled(initialDelay = 60000, fixedDelay = 60000)
-    public void sendSamplePushNotification() {
-        try {
-            fcmService.sendMessageWithoutData(getSamplePushNotificationRequest());
-        } catch (InterruptedException | ExecutionException e) {
-            logger.error(e.getMessage());
-        }
-    }
+	public void sendPushNotificationEmails(FCMNotificationRequest request) {
+		request.getEmails().forEach(email -> {
+			Optional<User> user = userRepository.findByEmail(email);
 
-    public void sendPushNotification(FCMPushNotificationRequest request) {
-        try {
-            fcmService.sendMessage(getSamplePayloadData(), request);
-        } catch (InterruptedException | ExecutionException e) {
-            logger.error(e.getMessage());
-        }
-    }
+			if (user.isPresent()) {
+				String token = user.get().getFcm_token().getFcm_token();
+				FCMPushNotificationRequest fcmRequest = new FCMPushNotificationRequest(request.getTitle(),
+						request.getMessage(), request.getTopic(), token);
+				try {
+					fcmService.sendMessageToToken(fcmRequest);
+				} catch (InterruptedException | ExecutionException e) {
+					logger.error(e.getMessage());
+				}
+			}
 
-    public void sendPushNotificationWithoutData(FCMPushNotificationRequest request) {
-        try {
-            fcmService.sendMessageWithoutData(request);
-        } catch (InterruptedException | ExecutionException e) {
-            logger.error(e.getMessage());
-        }
-    }
+		});
+	}
 
-
-    public void sendPushNotificationToToken(FCMPushNotificationRequest request) {
-        try {
-            fcmService.sendMessageToToken(request);
-        } catch (InterruptedException | ExecutionException e) {
-            logger.error(e.getMessage());
-        }
-    }
-
-
-    private Map<String, String> getSamplePayloadData() {
-        Map<String, String> pushData = new HashMap<>();
-        pushData.put("messageId", defaults.get("payloadMessageId"));
-        pushData.put("text", defaults.get("payloadData") + " " + LocalDateTime.now());
-        return pushData;
-    }
-
-
-    private FCMPushNotificationRequest getSamplePushNotificationRequest() {
-        FCMPushNotificationRequest request = new FCMPushNotificationRequest(defaults.get("title"),
-                defaults.get("message"),
-                defaults.get("topic"));
-        return request;
-    }
-
+	public void sendPushNotificationToToken(FCMPushNotificationRequest request) {
+		try {
+			fcmService.sendMessageToToken(request);
+		} catch (InterruptedException | ExecutionException e) {
+			logger.error(e.getMessage());
+		}
+	}
 
 }

@@ -82,6 +82,10 @@ public class User {
 	@JsonBackReference
 	private List<Event> events;
 	
+	@JsonIgnore
+	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "fcm_token_id", referencedColumnName = "id")
+    private FCMToken fcm_token;
 
 	public User() {
 
