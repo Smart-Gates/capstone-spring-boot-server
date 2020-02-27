@@ -88,6 +88,8 @@ public class EventController {
 
 		// check to see if there are any attached attendees
 		if (eventRequest.getAttendee_email().isEmpty()) {
+			eventRepository.save(newEvent);
+
 			return ResponseEntity.created(linkTo(methodOn(EventController.class).one(newEvent.getId())).toUri())
 					.body(assembler.toModel(newEvent));
 		}

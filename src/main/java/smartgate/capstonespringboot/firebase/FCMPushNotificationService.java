@@ -20,8 +20,8 @@ public class FCMPushNotificationService {
 
 	@Autowired
 	UserRepository userRepository;
-	@Value("#{${app.notifications.defaults}}")
-	private Map<String, String> defaults;
+	//@Value("#{${app.notifications.defaults}}")
+	//private Map<String, String> defaults;
 
 	private Logger logger = LoggerFactory.getLogger(FCMPushNotificationService.class);
 	private FCMService fcmService;
