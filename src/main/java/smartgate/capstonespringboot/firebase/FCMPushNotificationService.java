@@ -7,8 +7,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import smartgate.capstonespringboot.models.User;
+import smartgate.capstonespringboot.payloads.FCMImageNotificationRequest;
 import smartgate.capstonespringboot.payloads.FCMNotificationRequest;
-import smartgate.capstonespringboot.payloads.FCMPushNotificationRequest;
+import smartgate.capstonespringboot.payloads.FCMNotificationToTokenRequest;
 import smartgate.capstonespringboot.repository.UserRepository;
 
 import java.util.Map;
@@ -36,7 +37,7 @@ public class FCMPushNotificationService {
 
 			if (user.isPresent()) {
 				String token = user.get().getFcm_token().getFcm_token();
-				FCMPushNotificationRequest fcmRequest = new FCMPushNotificationRequest(request.getTitle(),
+				FCMNotificationToTokenRequest fcmRequest = new FCMNotificationToTokenRequest(request.getTitle(),
 						request.getMessage(), request.getTopic(), token);
 				try {
 					fcmService.sendMessageToToken(fcmRequest);
@@ -48,12 +49,16 @@ public class FCMPushNotificationService {
 		});
 	}
 
-	public void sendPushNotificationToToken(FCMPushNotificationRequest request) {
+	public void sendPushNotificationToToken(FCMNotificationToTokenRequest request) {
 		try {
 			fcmService.sendMessageToToken(request);
 		} catch (InterruptedException | ExecutionException e) {
 			logger.error(e.getMessage());
 		}
+	}
+
+	public void sendPushNotificationImageToEmail(FCMImageNotificationRequest request) {
+		fcmService.uploadImageToFirebase(request.getImageData());
 	}
 
 }

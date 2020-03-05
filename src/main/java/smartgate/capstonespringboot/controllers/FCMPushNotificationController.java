@@ -11,8 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 import smartgate.capstonespringboot.firebase.FCMPushNotificationService;
 import smartgate.capstonespringboot.models.FCMToken;
 import smartgate.capstonespringboot.models.User;
+import smartgate.capstonespringboot.payloads.FCMImageNotificationRequest;
 import smartgate.capstonespringboot.payloads.FCMNotificationRequest;
-import smartgate.capstonespringboot.payloads.FCMPushNotificationRequest;
+import smartgate.capstonespringboot.payloads.FCMNotificationToTokenRequest;
 import smartgate.capstonespringboot.payloads.FCMPushNotificationResponse;
 import smartgate.capstonespringboot.payloads.FCMTokenRequest;
 import smartgate.capstonespringboot.repository.FCMTokenRepository;
@@ -31,7 +32,7 @@ public class FCMPushNotificationController {
 	FCMTokenRepository fcmTokenRepository;
 
 	@PostMapping("/notification/topic")
-	public ResponseEntity<?> sendNotification(@RequestBody FCMPushNotificationRequest request) {
+	public ResponseEntity<?> sendNotification(@RequestBody FCMNotificationToTokenRequest request) {
 		//pushNotificationService.sendPushNotificationWithoutData(request);
 		return new ResponseEntity<>(
 				new FCMPushNotificationResponse(HttpStatus.OK.value(), "Notification has been sent."), HttpStatus.OK);
@@ -66,5 +67,13 @@ public class FCMPushNotificationController {
 				new FCMPushNotificationResponse(HttpStatus.OK.value(), "Notification has been sent."), HttpStatus.OK);
 	}
 	
-
+	// security filter has this endpoint not needing authorization
+	@PostMapping("/notification/image")
+	public ResponseEntity<?> sendNotificationImage(@RequestBody FCMImageNotificationRequest request, @CurrentUser UserPrincipal currentUser) {
+		// for each email send a push notification to the user
+		pushNotificationService.sendPushNotificationImageToEmail(request);
+		return new ResponseEntity<>(
+				new FCMPushNotificationResponse(HttpStatus.OK.value(), "Notification has been sent."), HttpStatus.OK);
+	}
+	
 }
