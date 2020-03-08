@@ -14,7 +14,7 @@ import smartgate.capstonespringboot.models.User;
 import smartgate.capstonespringboot.payloads.FCMImageNotificationRequest;
 import smartgate.capstonespringboot.payloads.FCMNotificationRequest;
 import smartgate.capstonespringboot.payloads.FCMNotificationToTokenRequest;
-import smartgate.capstonespringboot.payloads.FCMPushNotificationResponse;
+import smartgate.capstonespringboot.payloads.GeneralResponse;
 import smartgate.capstonespringboot.payloads.FCMTokenRequest;
 import smartgate.capstonespringboot.repository.FCMTokenRepository;
 import smartgate.capstonespringboot.repository.UserRepository;
@@ -35,7 +35,7 @@ public class FCMPushNotificationController {
 	public ResponseEntity<?> sendNotification(@RequestBody FCMNotificationToTokenRequest request) {
 		//pushNotificationService.sendPushNotificationWithoutData(request);
 		return new ResponseEntity<>(
-				new FCMPushNotificationResponse(HttpStatus.OK.value(), "Notification has been sent."), HttpStatus.OK);
+				new GeneralResponse(HttpStatus.OK.value(), "Notification has been sent."), HttpStatus.OK);
 	}
 
 	// update the users FCM token
@@ -55,7 +55,7 @@ public class FCMPushNotificationController {
 		}
 
 		return new ResponseEntity<>(
-				new FCMPushNotificationResponse(HttpStatus.CREATED.value(), "FCM token has been updated."),
+				new GeneralResponse(HttpStatus.CREATED.value(), "FCM token has been updated."),
 				HttpStatus.CREATED);
 	}
 	
@@ -64,16 +64,15 @@ public class FCMPushNotificationController {
 		// for each email send a push notification to the user
 		pushNotificationService.sendPushNotificationEmails(request);
 		return new ResponseEntity<>(
-				new FCMPushNotificationResponse(HttpStatus.OK.value(), "Notification has been sent."), HttpStatus.OK);
+				new GeneralResponse(HttpStatus.OK.value(), "Notification has been sent."), HttpStatus.OK);
 	}
 	
 	// security filter has this endpoint not needing authorization
 	@PostMapping("/notification/image")
 	public ResponseEntity<?> sendNotificationImage(@RequestBody FCMImageNotificationRequest request, @CurrentUser UserPrincipal currentUser) {
 		// for each email send a push notification to the user
-		pushNotificationService.sendPushNotificationImageToEmail(request);
-		return new ResponseEntity<>(
-				new FCMPushNotificationResponse(HttpStatus.OK.value(), "Notification has been sent."), HttpStatus.OK);
+		ResponseEntity<?> response = pushNotificationService.sendPushNotificationImageToEmail(request);
+		return response;
 	}
 	
 }

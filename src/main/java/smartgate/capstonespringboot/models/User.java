@@ -1,5 +1,6 @@
 package smartgate.capstonespringboot.models;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -86,6 +87,9 @@ public class User {
 	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "fcm_token_id", referencedColumnName = "id")
     private FCMToken fcm_token;
+	
+	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Rfid rfid;
 
 	public User() {
 
@@ -97,6 +101,21 @@ public class User {
 		this.password = password;
 		this.firstName = firstName;
 		this.lastName = lastName;
+	}
+	
+	public boolean hasRole(RoleName roleName) {
+		boolean hasRole = false;
+		Set<Role> myRoles = getRoles();
+		List<Role> list = new ArrayList<>(myRoles);
+		
+		for (Role r : list) {
+			if(r.getName().equals(roleName)) {
+				hasRole = true;
+				break;
+			}
+		}			
+		
+		return hasRole;	
 	}
 
 }

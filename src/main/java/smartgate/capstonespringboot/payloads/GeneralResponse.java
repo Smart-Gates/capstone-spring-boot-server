@@ -3,15 +3,15 @@ package smartgate.capstonespringboot.payloads;
 import lombok.Data;
 
 @Data
-public class FCMPushNotificationResponse {
+public class GeneralResponse {
 
 	private int status;
 	private String message;
 
-	public FCMPushNotificationResponse() {
+	public GeneralResponse() {
 	}
 
-	public FCMPushNotificationResponse(int status, String message) {
+	public GeneralResponse(int status, String message) {
         this.status = status;
         this.message = message;
     }

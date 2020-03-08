@@ -114,4 +114,6 @@ public class AuthenticationController {
 		
 		return ResponseEntity.ok(new JwtAuthenticationResponse(jwt, user));
 	}
+	
 }
+

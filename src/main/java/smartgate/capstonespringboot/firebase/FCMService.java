@@ -29,7 +29,7 @@ public class FCMService {
 	@Autowired
 	private Environment env;
 
-	Logger logger = LoggerFactory.getLogger(FCMInitializer.class);
+	Logger logger = LoggerFactory.getLogger(FCMService.class);
 
 	public void sendMessage(Map<String, String> data, FCMNotificationToTokenRequest request)
 			throws InterruptedException, ExecutionException {

@@ -67,6 +67,7 @@ public class OrganizationController {
 	
 	}
 
+	// create user for organization
 	@PostMapping("/organizations")
 	public ResponseEntity<?> newOrg(@Valid @RequestBody OrganizationRequest organizationReq) {
 		if (organizationRepository.existsByName(organizationReq.getName())) {
