@@ -3,7 +3,6 @@ package smartgate.capstonespringboot.firebase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import smartgate.capstonespringboot.models.User;
@@ -12,7 +11,6 @@ import smartgate.capstonespringboot.payloads.FCMNotificationRequest;
 import smartgate.capstonespringboot.payloads.FCMNotificationToTokenRequest;
 import smartgate.capstonespringboot.repository.UserRepository;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
@@ -21,8 +19,6 @@ public class FCMPushNotificationService {
 
 	@Autowired
 	UserRepository userRepository;
-	//@Value("#{${app.notifications.defaults}}")
-	//private Map<String, String> defaults;
 
 	private Logger logger = LoggerFactory.getLogger(FCMPushNotificationService.class);
 	private FCMService fcmService;
@@ -38,12 +34,8 @@ public class FCMPushNotificationService {
 			if (user.isPresent()) {
 				String token = user.get().getFcm_token().getFcm_token();
 				FCMNotificationToTokenRequest fcmRequest = new FCMNotificationToTokenRequest(request.getTitle(),
-						request.getMessage(), request.getTopic(), token);
-				try {
-					fcmService.sendMessageToToken(fcmRequest);
-				} catch (InterruptedException | ExecutionException e) {
-					logger.error(e.getMessage());
-				}
+						request.getMessage(), request.getTopic(), token, null);
+				sendPushNotificationToToken(fcmRequest);
 			}
 
 		});
@@ -58,7 +50,14 @@ public class FCMPushNotificationService {
 	}
 
 	public void sendPushNotificationImageToEmail(FCMImageNotificationRequest request) {
-		fcmService.uploadImageToFirebase(request.getImageData());
+		String downloadUrl = fcmService.uploadImageToFirebase(request.getImageData());
+		Optional<User> user = userRepository.findByEmail(request.getEmail());
+		if (user.isPresent()) {
+			String token = user.get().getFcm_token().getFcm_token();
+			FCMNotificationToTokenRequest fcmRequest = new FCMNotificationToTokenRequest(request.getTitle(),
+					request.getMessage(), request.getTopic(), token, downloadUrl);
+			sendPushNotificationToToken(fcmRequest);
+		}
 	}
 
 }

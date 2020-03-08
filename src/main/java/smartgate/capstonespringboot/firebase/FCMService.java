@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import com.google.cloud.storage.Bucket;
 import com.google.firebase.cloud.StorageClient;
 import com.google.firebase.messaging.*;
+import com.google.firebase.messaging.Message.Builder;
 
 import smartgate.capstonespringboot.models.PushNotificationParameter;
 import smartgate.capstonespringboot.payloads.FCMNotificationToTokenRequest;
@@ -93,10 +94,17 @@ public class FCMService {
 	private Message.Builder getPreconfiguredMessageBuilder(FCMNotificationToTokenRequest request) {
 		AndroidConfig androidConfig = getAndroidConfig(request.getTopic());
 		ApnsConfig apnsConfig = getApnsConfig(request.getTopic());
-		return Message.builder().setApnsConfig(apnsConfig).setAndroidConfig(androidConfig)
+		Builder builder = Message.builder();
+		if (request.getImageUrl() !=  null) {
+			builder  = builder.putData("image", request.getImageUrl());	
+		}
+		return builder.setApnsConfig(apnsConfig)
+				.setAndroidConfig(androidConfig)
 				.setNotification(new Notification(request.getTitle(), request.getMessage()));
+		
 	}
 
+	// upload the image to Fire base and return the download URL
 	public String uploadImageToFirebase(String imageData) {
 		// create name for the file based on current time
 		String fileName = Long.toString(new Date().getTime());
@@ -104,10 +112,12 @@ public class FCMService {
 		StorageClient storageClient = StorageClient.getInstance();
 		String blobString = "notification_images/" + fileName + ".jpg";
 		byte[] content = Base64.getDecoder().decode(new String(imageData).getBytes());
-		storageClient.bucket(env.getProperty("app.firebase-bucket")).create(blobString, content,
+		storageClient.bucket().create(blobString, content,
 				Bucket.BlobTargetOption.userProject(env.getProperty("app.firebase-project-id")));
 		logger.info("Uploaded notification image to: " + blobString);
-		return blobString;
+		
+		String downloadUrl = "https://storage.googleapis.com/"+ env.getProperty("app.firebase-bucket") +"/" + blobString;
+		return downloadUrl;
 	}
 
 }
