@@ -60,13 +60,6 @@ public class FCMService {
 		logger.info("Sent message to token. Device token: " + request.getToken() + ", " + response);
 	}
 
-	public void sendMessageToEmail(FCMNotificationToTokenRequest request)
-			throws InterruptedException, ExecutionException {
-		Message message = getPreconfiguredMessageToToken(request);
-		String response = sendAndGetResponse(message);
-		logger.info("Sent message to token. Device token: " + request.getToken() + ", " + response);
-	}
-
 	private String sendAndGetResponse(Message message) throws InterruptedException, ExecutionException {
 		return FirebaseMessaging.getInstance().sendAsync(message).get();
 	}
@@ -92,17 +85,14 @@ public class FCMService {
 	}
 
 	private Message.Builder getPreconfiguredMessageBuilder(FCMNotificationToTokenRequest request) {
+		Notification notification  = new Notification(request.getTitle(), request.getMessage(), request.getImageUrl());		
 		AndroidConfig androidConfig = getAndroidConfig(request.getTopic());
-		ApnsConfig apnsConfig = getApnsConfig(request.getTopic());
-		Builder builder = Message.builder();
-		if (request.getImageUrl() !=  null) {
-			builder  = builder.putData("image", request.getImageUrl());	
-		}
-		return builder.setApnsConfig(apnsConfig)
-				.setAndroidConfig(androidConfig)
-				.setNotification(new Notification(request.getTitle(), request.getMessage()));
-		
+		ApnsConfig apnsConfig = getApnsConfig(request.getTopic());		
+			return Message.builder().setApnsConfig(apnsConfig)
+					.setAndroidConfig(androidConfig)
+					.setNotification(notification);
 	}
+	
 
 	// upload the image to Fire base and return the download URL
 	public String uploadImageToFirebase(String imageData) {
